@@ -10,7 +10,7 @@
 </style>
 </head>
 <body><main>
-<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="status" id="versionBadge">Version 0.3.1</span><div id="status" class="status">Nicht angemeldet</div></div></header>
+<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="status" id="versionBadge">Version 0.3.2</span><div id="status" class="status">Nicht angemeldet</div></div></header>
 <section id="login">
 <h1>Dein System.<br><span>Dein Gedächtnis.</span></h1>
 <p>Ein privater Arbeitsbereich für Gespräche, Aufgaben, Erinnerungen und persönliche Projekte.</p>
@@ -32,12 +32,10 @@
 </div>
 <div class="panel section"><div class="welcome"><div><h2>Aktivität</h2><div class="small muted">Zuletzt gespeicherte Gespräche</div></div><button id="refreshButton" class="secondary" type="button">Aktualisieren</button></div><div id="activity"><div class="empty">Lade Aktivität …</div></div></div>
 </section>
-<div class="footer">PHASEONE[human] · Version 0.3.1 · Persönlicher Prototyp · Konto und Daten werden über Supabase Auth und Row Level Security geschützt.</div>
+<div class="footer">PHASEONE[human] · Version 0.3.2 · Persönlicher Prototyp · Konto und Daten werden über Supabase Auth und Row Level Security geschützt.</div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2.57.0/dist/umd/supabase.js"></script>
 <script>
-if(!window.supabase){document.getElementById("loginMessage").textContent="Die Anmelde-Bibliothek konnte nicht geladen werden. Prüfe die Internetverbindung oder öffne die Seite später erneut.";throw new Error("Supabase CDN failed to load");}
+async function startApp(){
 const { createClient } = window.supabase;
 const SUPABASE_URL='https://eopvkwhcgznvubesaszv.supabase.co';
 const SUPABASE_KEY='sb_publishable_d3hVgDqwTuB63BtfumPwoQ_ngy2ig_c';
@@ -75,4 +73,32 @@ $('contextToggle').addEventListener('click',()=>{state.context=!state.context;$(
 $('refreshButton').addEventListener('click',refreshAll);
 $('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('chatForm').requestSubmit()}});
 guard();
+}
+(async function loadSupabase(){
+  const message=document.getElementById('loginMessage');
+  const button=document.getElementById('loginButton');
+  const sources=[
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+    'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+  ];
+  for(const url of sources){
+    try{
+      await new Promise((resolve,reject)=>{
+        const script=document.createElement('script');
+        script.src=url;
+        script.async=true;
+        script.onload=()=>window.supabase?resolve():reject(new Error('Library global missing'));
+        script.onerror=()=>reject(new Error('CDN load failed'));
+        document.head.appendChild(script);
+      });
+      await startApp();
+      return;
+    }catch(error){
+      const failed=document.querySelector('script[src="'+url+'"]');
+      if(failed)failed.remove();
+    }
+  }
+  button.disabled=true;
+  message.textContent='Die Anmelde-Bibliothek konnte nicht geladen werden. Prüfe die Internetverbindung oder Content-Blocker. Versuche es anschließend erneut.';
+})();
 </script></body></html>
