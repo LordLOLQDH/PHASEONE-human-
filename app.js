@@ -1,5 +1,8 @@
 
 async function startApp(){
+const bootError=(error)=>{const appRoot=document.getElementById('app');if(appRoot)appRoot.classList.remove('hidden');const box=document.getElementById('bootError')||document.createElement('div');box.id='bootError';box.style.cssText='margin:12px 0;padding:12px;border:1px solid #ff8b8b;border-radius:10px;color:#ffd0d0;background:#351b20;white-space:pre-wrap;overflow-wrap:anywhere';box.textContent='PHASEONE konnte nicht vollständig starten: '+(error?.message||String(error));if(appRoot)appRoot.prepend(box);else document.body.append(box);};
+window.addEventListener('error',e=>bootError(e.error||e.message));
+window.addEventListener('unhandledrejection',e=>bootError(e.reason));
 const SUPABASE_URL='https://eopvkwhcgznvubesaszv.supabase.co';
 const AI_FALLBACK_ENDPOINT=SUPABASE_URL+'/functions/v1/cloudflare-ai-fallback';
 const LOCAL_KEY='phaseone_human_local_v1';
@@ -13,7 +16,8 @@ const state={user:{id:'local-device',email:'Lokaler Modus'},memories:saved.memor
 const say=(id,t)=>{$(id).textContent=t||''};
 function el(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
 function setStatus(t){$('status').textContent=t}
-function showApp(){ $('login').classList.add('hidden');$('app').classList.remove('hidden');setStatus('Lokaler Modus');say('userLabel','Daten bleiben in diesem Browser auf diesem Gerät.')}
+function showApp(){ const login=$('login'),app=$('app');if(login)login.classList.add('hidden');if(app)app.classList.remove('hidden');const status=$('status');if(status)status.textContent='Lokaler Modus';say('userLabel','Daten bleiben in diesem Browser auf diesem Gerät.')}
+showApp();
 
 function renderMemories(){const root=$('memories');root.replaceChildren();if(!state.memories.length)root.append(el('div','empty','Noch keine Erinnerungen gespeichert.'));for(const m of state.memories){const box=el('div','tile');const body=el('p','',m.content);const date=el('div','small muted',new Date(m.created_at).toLocaleString('de-DE'));const actions=el('div','tile-actions');const del=el('button','danger','Löschen');del.type='button';del.addEventListener('click',()=>deleteMemory(m.id));actions.append(del);box.append(body,date,actions);root.append(box)}$('memoryCount').textContent=state.memories.length}
 function renderTasks(){const root=$('tasks');root.replaceChildren();if(!state.tasks.length)root.append(el('div','empty','Noch keine Aufgaben vorhanden.'));for(const t of state.tasks){const box=el('div','tile');const head=el('div','tile-head');const title=el('strong','',t.title);const badge=el('span','badge',t.status==='done'?'Erledigt':t.status==='in_progress'?'In Arbeit':'Offen');head.append(title,badge);const actions=el('div','tile-actions');const toggle=el('button','secondary',t.status==='done'?'Wieder öffnen':'Erledigt markieren');toggle.type='button';toggle.addEventListener('click',()=>updateTask(t.id,t.status==='done'?'todo':'done'));const progress=el('button','secondary',t.status==='in_progress'?'Zurück auf offen':'In Arbeit');progress.type='button';progress.addEventListener('click',()=>updateTask(t.id,t.status==='in_progress'?'todo':'in_progress'));const del=el('button','danger','Löschen');del.type='button';del.addEventListener('click',()=>deleteTask(t.id));actions.append(toggle,progress,del);box.append(head,el('div','small muted',new Date(t.created_at).toLocaleString('de-DE')),actions);root.append(box)}$('taskCount').textContent=state.tasks.filter(t=>t.status!=='done').length}
@@ -37,4 +41,4 @@ $('refreshButton').addEventListener('click',refreshAll);
 $('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('chatForm').requestSubmit()}});
 showApp();refreshAll();setTimeout(()=>{$('chatInput').focus({preventScroll:true})},150);
 }
-startApp();
+startApp().catch(error=>{const app=document.getElementById('app');if(app)app.classList.remove('hidden');const box=document.createElement('div');box.style.cssText='margin:12px;padding:12px;border:1px solid #ff8b8b;border-radius:10px;color:#ffd0d0;background:#351b20;white-space:pre-wrap;overflow-wrap:anywhere';box.textContent='PHASEONE-Startfehler: '+(error?.stack||error?.message||String(error));(app||document.body).prepend(box)});
