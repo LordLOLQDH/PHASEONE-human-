@@ -73,5 +73,5 @@ $('clearChat').addEventListener('click',async()=>{if(!confirm('Den gesamten gesp
 $('contextToggle').addEventListener('click',()=>{state.context=!state.context;$('contextToggle').textContent='Kontext: Erinnerungen + Aufgaben '+(state.context?'an':'aus')});
 $('refreshButton').addEventListener('click',refreshAll);
 $('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('chatForm').requestSubmit()}});
-await guard();
+guard();
 </script></body></html>
