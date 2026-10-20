@@ -1,35 +1,56 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#08090c">
-<meta name="description" content="PHASEONE[human] – persönlicher KI-Arbeitsbereich für Aufgaben, Erinnerungen und Gespräche.">
-<title>PHASEONE[human]</title>
-<link rel="stylesheet" href="styles.css?v=0.5.1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090c">
+<meta name="description" content="PHASEONE[human] – privater KI-Arbeitsbereich mit serverseitig gespeicherten Erinnerungen, Aufgaben und Gesprächen.">
+<title>PHASEONE[human] · Version 1.0.0</title>
+<link rel="stylesheet" href="styles.css?v=1.0.0">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body><main>
-<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="status" id="versionBadge">Version 0.5.1</span><div id="status" class="status">Lokaler Modus</div></div></header>
-<section id="login" class="hidden">
-<h1>Dein System.<br><span>Dein Gedächtnis.</span></h1>
-<p>Ein privater Arbeitsbereich für Gespräche, Aufgaben, Erinnerungen und persönliche Projekte.</p>
-<div class="panel login-wrap"><h2>Anmelden</h2><div class="small muted">Nur das freigegebene Konto kann auf gespeicherte Daten zugreifen.</div>
-<form id="loginForm" onsubmit="event.preventDefault();"><label for="email">E-Mail-Adresse</label><input id="email" type="email" autocomplete="username" required placeholder="Freigegebene E-Mail"><label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password" required placeholder="Supabase-Auth-Passwort"><button class="full" id="loginButton" type="button" onclick="if(window.phaseoneLoginHandler){window.phaseoneLoginHandler()}else{document.getElementById('loginMessage').textContent='Das Anmeldeskript ist nicht gestartet. Bitte Seite neu laden; wenn der Fehler bleibt, den Browser-Blocker für diese Seite prüfen.'}">Sicher anmelden</button></form><div id="loginMessage" class="msg" role="status"></div></div>
+<body>
+<main>
+<header class="head">
+  <div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="status" id="versionBadge">Version 1.0.0</span><div id="status" class="status" role="status">Backend wird geprüft …</div><button id="logoutButton" class="secondary hidden" type="button">Abmelden</button></div>
+</header>
+<section id="login">
+  <h1>Dein System.<br><span>Dein Gedächtnis.</span></h1>
+  <p>Ein privater Arbeitsbereich für Gespräche, Aufgaben, Erinnerungen und persönliche Projekte.</p>
+  <div class="panel login-wrap">
+    <h2>Anmelden</h2><div class="small muted">Privater Zugang · Keine öffentliche Registrierung</div>
+    <form id="loginForm">
+      <label for="email">Freigegebene E-Mail-Adresse</label>
+      <input id="email" type="email" autocomplete="username" required value="adam_kraus@icloud.com" readonly>
+      <label for="password">Passwort</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Dein Supabase-Passwort">
+      <button class="full" id="loginButton" type="submit">Sicher anmelden</button>
+    </form>
+    <div id="loginMessage" class="msg" role="status" aria-live="polite"></div>
+    <div class="notice">Deine Daten werden nach der Anmeldung über Supabase geladen und serverseitig gespeichert. Die KI erhält den Chatverlauf und – wenn aktiviert – den ausgewählten Kontext.</div>
+  </div>
 </section>
 <section id="app" class="hidden">
-<div class="welcome"><div><h1 style="font-size:clamp(27px,5vw,40px)">Arbeitsbereich<span>.</span></h1><div id="userLabel" class="muted small"></div></div><button id="jumpToChat" type="button">Direkt zum Chat ↓</button></div>
-<div class="panel"><div class="welcome"><div><h2>PHASEONE-Agent</h2><div class="small muted">KI-Unterstützung über die vorhandene KDS-AI-Schnittstelle</div></div><span class="badge" id="aiStatus">Bereit</span></div>
-<div class="notice">Hinweis zum Datenschutz: Deine Chat-Nachrichten und der von dir ausgewählte Kontext werden an die KDS-AI-Schnittstelle und deren KI-Anbieter gesendet. Gib dort keine Passwörter, API-Schlüssel oder andere Geheimnisse ein.</div>
-<div id="chatLog" class="chat-log" aria-live="polite"><div class="empty">Stelle eine Frage oder bitte den Agenten um Hilfe bei deinen Aufgaben.</div></div>
-<form id="chatForm" class="composer"><textarea id="chatInput" rows="1" maxlength="8000" placeholder="Schreibe an PHASEONE …" required></textarea><button id="sendButton" type="submit">Senden</button></form><div id="chatMessage" class="msg" role="status"></div>
-<div class="tile-actions"><button id="clearChat" type="button" class="secondary">Chatverlauf löschen</button><button id="contextToggle" type="button" class="secondary">Kontext: Erinnerungen + Aufgaben an</button></div>
-</div>
-<div class="triple"><div class="metric"><strong id="memoryCount">0</strong><span>Erinnerungen</span></div><div class="metric"><strong id="taskCount">0</strong><span>Aufgaben offen</span></div><div class="metric"><strong id="chatCount">0</strong><span>Gespeicherte Nachrichten</span></div></div>
-
-<div class="layout">
-<div class="panel"><h2>Gedächtnis</h2><p class="small">Wichtige Gedanken und Informationen dauerhaft speichern.</p><form id="memoryForm"><label for="memoryInput">Neue Erinnerung</label><textarea id="memoryInput" rows="3" maxlength="10000" required placeholder="Was soll PHASEONE behalten?"></textarea><button class="full" id="saveMemory" type="submit">Erinnerung speichern</button></form><div id="memoryMessage" class="msg"></div><div id="memories"><div class="empty">Lade Erinnerungen …</div></div></div>
-<div class="panel"><h2>Aufgaben</h2><p class="small">Plane Schritte und markiere sie als erledigt.</p><form id="taskForm"><label for="taskInput">Neue Aufgabe</label><input id="taskInput" maxlength="500" required placeholder="Was steht an?"><button class="full" id="saveTask" type="submit">Aufgabe hinzufügen</button></form><div id="taskMessage" class="msg"></div><div id="tasks"><div class="empty">Lade Aufgaben …</div></div></div>
-</div>
-<div class="panel section"><div class="welcome"><div><h2>Aktivität</h2><div class="small muted">Zuletzt gespeicherte Gespräche</div></div><button id="refreshButton" class="secondary" type="button">Aktualisieren</button></div><div id="activity"><div class="empty">Lade Aktivität …</div></div></div>
+  <div class="welcome"><div><h1 style="font-size:clamp(27px,5vw,40px)">Arbeitsbereich<span>.</span></h1><div id="userLabel" class="muted small"></div></div><button id="jumpToChat" type="button">Direkt zum Chat ↓</button></div>
+  <div id="appError" class="notice hidden" role="alert"></div>
+  <div class="panel">
+    <div class="welcome"><div><h2>PHASEONE-Agent</h2><div class="small muted">KI-Backend · Authentifizierte Edge Function</div></div><span class="badge" id="aiStatus">Bereit</span></div>
+    <div class="notice">Gib keine Passwörter, API-Schlüssel oder andere Geheimnisse in den Chat ein. Nachrichten und ausgewählter Kontext werden an den KI-Anbieter übermittelt.</div>
+    <div id="chatLog" class="chat-log" aria-live="polite"><div class="empty">Lade gespeicherten Chat …</div></div>
+    <form id="chatForm" class="composer"><textarea id="chatInput" rows="1" maxlength="8000" placeholder="Schreibe an PHASEONE …" required></textarea><button id="sendButton" type="submit">Senden</button></form>
+    <div id="chatMessage" class="msg" role="status" aria-live="polite"></div>
+    <div class="tile-actions"><button id="clearChat" type="button" class="secondary">Chatverlauf löschen</button><button id="contextToggle" type="button" class="secondary">Kontext: Erinnerungen + Aufgaben an</button></div>
+  </div>
+  <div class="triple"><div class="metric"><strong id="memoryCount">0</strong><span>Erinnerungen</span></div><div class="metric"><strong id="taskCount">0</strong><span>Aufgaben offen</span></div><div class="metric"><strong id="chatCount">0</strong><span>Gespeicherte Nachrichten</span></div></div>
+  <div class="layout">
+    <div class="panel"><h2>Gedächtnis</h2><p class="small">Wichtige Gedanken und Informationen dauerhaft in Supabase speichern.</p><form id="memoryForm"><label for="memoryInput">Neue Erinnerung</label><textarea id="memoryInput" rows="3" maxlength="10000" required placeholder="Was soll PHASEONE behalten?"></textarea><button class="full" id="saveMemory" type="submit">Erinnerung speichern</button></form><div id="memoryMessage" class="msg" role="status"></div><div id="memories"><div class="empty">Lade Erinnerungen …</div></div></div>
+    <div class="panel"><h2>Aufgaben</h2><p class="small">Plane Schritte und markiere sie als erledigt.</p><form id="taskForm"><label for="taskInput">Neue Aufgabe</label><input id="taskInput" maxlength="500" required placeholder="Was steht an?"><button class="full" id="saveTask" type="submit">Aufgabe hinzufügen</button></form><div id="taskMessage" class="msg" role="status"></div><div id="tasks"><div class="empty">Lade Aufgaben …</div></div></div>
+  </div>
+  <div class="panel section"><div class="welcome"><div><h2>Aktivität</h2><div class="small muted">Zuletzt gespeicherte Gespräche</div></div><button id="refreshButton" class="secondary" type="button">Aktualisieren</button></div><div id="activity"><div class="empty">Lade Aktivität …</div></div></div>
 </section>
-<div class="footer">PHASEONE[human] · Version 0.5.1 · Persönlicher Prototyp · Vorübergehend ohne Login · Erinnerungen, Aufgaben und Chat werden auf diesem Gerät gespeichert.</div>
+<div class="footer">PHASEONE[human] · Version 1.0.0 · Privater Arbeitsbereich · Supabase Auth + Datenbank + geschütztes KI-Backend</div>
 </main>
-<script src="app.js?v=0.5.1" defer></script></body></html>
+<script src="app.js?v=1.0.0" defer></script>
+</body>
+</html>
