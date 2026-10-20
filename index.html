@@ -34,8 +34,10 @@
 </section>
 <div class="footer">PHASEONE[human] · Persönlicher Prototyp · Konto und Daten werden über Supabase Auth und Row Level Security geschützt.</div>
 </main>
-<script type="module">
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.0';
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+if(!window.supabase){document.getElementById("loginMessage").textContent="Die Supabase-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.";throw new Error("Supabase CDN failed to load");}
+const { createClient } = window.supabase;
 const SUPABASE_URL='https://eopvkwhcgznvubesaszv.supabase.co';
 const SUPABASE_KEY='sb_publishable_d3hVgDqwTuB63BtfumPwoQ_ngy2ig_c';
 const ALLOWED_EMAIL='adam_kraus@icloud.com';
