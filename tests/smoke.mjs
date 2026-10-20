@@ -15,7 +15,7 @@ assert.match(html, /styles\.css\?v=1\.0\.0/);
 assert.match(app, /phaseone-agent-v1/);
 assert.match(edge, /\/ai\/run\/\$\{model\}/, "Cloudflare model route must keep path separators");
 assert.doesNotMatch(edge, /encodeURIComponent\(model\)/, "Cloudflare model path must not encode its slashes");
-assert.match(edge, /adam_kraus@icloud\\.com/);
+assert.match(edge, /adam_kraus@icloud\.com/);
 assert.match(edge, /Anmeldung erforderlich/);
 assert.match(edge, /identityResponse/);
 assert.match(app, /phaseone_memories/);
