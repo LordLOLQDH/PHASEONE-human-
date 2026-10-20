@@ -41,7 +41,7 @@ Deno.serve(async (req: Request) => {
       .slice(-12)
       .map((m: any) => ({ role: m.role, content: m.content.slice(0, 8000) }));
     if (!messages.length || messages[messages.length - 1].role !== "user") return json({ ok: false, error: "Ungültiger Nachrichtenverlauf." }, 400);
-    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/600932bafc27f05a65a99d32b65e4e35/ai/run/${encodeURIComponent(model)}`, {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/600932bafc27f05a65a99d32b65e4e35/ai/run/${model}`, {
       method: "POST",
       headers: { Authorization: `Bearer ${cfToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [{ role: "system", content: systemPrompt }, ...messages], max_tokens: 800, temperature: 0.55 }),
