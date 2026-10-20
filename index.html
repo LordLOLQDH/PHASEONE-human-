@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08090c">
+<title>PHASEONE[human]</title>
+<style>
+:root{color-scheme:dark;--bg:#08090c;--panel:#111319;--line:#252936;--text:#f4f5f7;--muted:#9ca3af;--accent:#fe5a00}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#171923 0%,var(--bg) 55%);color:var(--text);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+main{width:min(960px,100%);margin:auto;padding:28px 18px 56px}.brand{font-size:12px;letter-spacing:.18em;color:var(--accent);font-weight:800}.head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:34px}.status{font-size:12px;border:1px solid var(--line);padding:6px 10px;border-radius:999px;color:var(--muted)}
+h1{font-size:clamp(30px,7vw,54px);line-height:1.04;letter-spacing:-.045em;margin:0 0 12px}h1 span{color:var(--accent)}p{color:var(--muted);margin:0 0 22px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}.panel{background:rgba(17,19,25,.92);border:1px solid var(--line);border-radius:18px;padding:22px}.panel h2{font-size:16px;margin:0 0 8px}.small{font-size:13px;color:var(--muted)}label{display:block;font-size:13px;color:#c4c8d1;margin:14px 0 6px}input,textarea{width:100%;border:1px solid #303542;background:#090a0e;border-radius:10px;padding:12px;color:var(--text);font:inherit;outline:none}input:focus,textarea:focus{border-color:var(--accent)}button{border:0;border-radius:10px;background:var(--accent);color:#160b05;font-weight:800;padding:12px 16px;font:inherit;cursor:pointer;width:100%;margin-top:14px}button.secondary{background:#242832;color:var(--text)}button:disabled{opacity:.5;cursor:wait}.hidden{display:none!important}.message{font-size:13px;margin-top:12px;color:#ffb18b;overflow-wrap:anywhere}.welcome{display:flex;align-items:center;justify-content:space-between;gap:12px}.welcome button{width:auto;margin:0}.tile{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px}.tile strong{display:block;font-size:22px}.footer{font-size:12px;color:#777e8b;margin-top:24px}@media(max-width:650px){main{padding:22px 14px 40px}.layout{grid-template-columns:1fr}.head{margin-bottom:28px}.panel{padding:18px}}
+</style>
+</head>
+<body><main>
+<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="small">Persönliches Agent-System · Phase 01</div></div><div class="status" id="status">Nicht angemeldet</div></header>
+<section id="login">
+<h1>Dein System.<br><span>Deine Regeln.</span></h1>
+<p>Privater Arbeitsbereich für deine Projekte, Aufgaben und dein persönliches Agent-Gedächtnis.</p>
+<div class="panel" style="max-width:470px">
+<h2>Anmelden</h2><div class="small">Zugriff ist ausschließlich für das freigegebene Konto vorgesehen.</div>
+<form id="loginForm"><label for="email">E-Mail-Adresse</label><input id="email" type="email" autocomplete="username" required placeholder="Deine freigegebene E-Mail"><label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password" required placeholder="Supabase-Auth-Passwort"><button id="loginButton" type="submit">Sicher anmelden</button></form>
+<div class="message" id="loginMessage" role="status"></div>
+</div></section>
+<section id="app" class="hidden"><div class="welcome"><div><h1 style="font-size:clamp(28px,6vw,42px)">Arbeitsbereich<span>.</span></h1><p id="userLabel" style="margin-bottom:0">Angemeldet</p></div><button class="secondary" id="logoutButton" type="button">Abmelden</button></div>
+<div class="layout"><div class="panel"><h2>Erinnerungen</h2><p class="small">Gedanken und wichtige Informationen für später festhalten.</p><label for="memory">Neue Erinnerung</label><textarea id="memory" rows="3" placeholder="Was soll PHASEONE behalten?"></textarea><button id="saveMemory" type="button">Erinnerung speichern</button><div id="memoryMessage" class="message"></div></div>
+<div class="panel"><h2>Aufgaben</h2><p class="small">Deine nächsten Schritte an einem Ort.</p><label for="task">Neue Aufgabe</label><input id="task" placeholder="Was steht an?"><button id="saveTask" type="button">Aufgabe hinzufügen</button><div id="taskMessage" class="message"></div></div></div>
+<div class="layout"><div class="panel"><h2>Gespeicherte Erinnerungen</h2><div id="memories" class="small">Noch nicht geladen.</div></div><div class="panel"><h2>Aufgabenliste</h2><div id="tasks" class="small">Noch nicht geladen.</div></div></div>
+</section><div class="footer">Privater Prototyp · Anmeldung über Supabase Auth · Keine Zugangsdaten im Repository hinterlegen.</div>
+</main>
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.0';
+const SUPABASE_URL = 'https://eopvkwhcgznvubesaszv.supabase.co';
+const SUPABASE_ANON_KEY = 'HIER_DEN_SUPABASE_PUBLISHABLE_ODER_ANON_KEY_EINTRAGEN';
+const ALLOWED_EMAIL = 'adam_kraus@icloud.com';
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const $ = id => document.getElementById(id);
+const say = (id, text) => { $(id).textContent = text; };
+function showApp(user){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('status').textContent='Angemeldet';say('userLabel',user.email || 'Angemeldet');}
+function showLogin(){ $('login').classList.remove('hidden');$('app').classList.add('hidden');$('status').textContent='Nicht angemeldet'; }
+async function guardSession(){
+ const {data:{session}} = await sb.auth.getSession();
+ if(session && session.user.email?.toLowerCase()===ALLOWED_EMAIL.toLowerCase()) {showApp(session.user); await refreshData();}
+ else { if(session) await sb.auth.signOut(); showLogin(); }
+}
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault(); $('loginButton').disabled=true; say('loginMessage','Anmeldung wird geprüft …');
+ const email=$('email').value.trim().toLowerCase();
+ if(email!==ALLOWED_EMAIL.toLowerCase()){say('loginMessage','Dieses Konto ist nicht freigegeben.');$('loginButton').disabled=false;return;}
+ const {data,error}=await sb.auth.signInWithPassword({email,password:$('password').value});
+ $('loginButton').disabled=false;
+ if(error){say('loginMessage','Anmeldung fehlgeschlagen. Bitte Zugangsdaten prüfen.');return;}
+ $('password').value=''; say('loginMessage',''); showApp(data.user); await refreshData();
+});
+$('logoutButton').addEventListener('click',async()=>{await sb.auth.signOut();showLogin();});
+async function refreshData(){
+ const {data:ms,error:me}=await sb.from('phaseone_memories').select('id,content,created_at').order('created_at',{ascending:false}).limit(30);
+ if(me){say('memories','Datenbank noch nicht eingerichtet oder nicht erreichbar.');}else{
+ $('memories').replaceChildren();
+ if(!ms.length) say('memories','Noch keine Erinnerungen gespeichert.');
+ ms.forEach(m=>{const el=document.createElement('div');el.className='tile';el.textContent=m.content;$('memories').append(el);});
+ }
+ const {data:ts,error:te}=await sb.from('phaseone_tasks').select('id,title,status').order('created_at',{ascending:false}).limit(30);
+ if(te){say('tasks','Datenbank noch nicht eingerichtet oder nicht erreichbar.');}else{
+ $('tasks').replaceChildren();
+ if(!ts.length) say('tasks','Noch keine Aufgaben vorhanden.');
+ ts.forEach(t=>{const el=document.createElement('div');el.className='tile';const title=document.createElement('strong');title.textContent=t.title;const status=document.createElement('span');status.className='small';status.textContent=t.status;$('tasks').append(el);el.append(title,status);});
+ }
+}
+$('saveMemory').addEventListener('click',async()=>{const content=$('memory').value.trim();if(!content)return;say('memoryMessage','Speichere …');const {error}=await sb.from('phaseone_memories').insert({content});if(error){say('memoryMessage','Speichern nicht möglich: Datenbank/Policies prüfen.');return;}$('memory').value='';say('memoryMessage','Gespeichert.');await refreshData();});
+$('saveTask').addEventListener('click',async()=>{const title=$('task').value.trim();if(!title)return;say('taskMessage','Speichere …');const {error}=await sb.from('phaseone_tasks').insert({title});if(error){say('taskMessage','Speichern nicht möglich: Datenbank/Policies prüfen.');return;}$('task').value='';say('taskMessage','Gespeichert.');await refreshData();});
+await guardSession();
+</script></body></html>
