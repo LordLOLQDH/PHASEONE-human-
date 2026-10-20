@@ -10,12 +10,12 @@
 </style>
 </head>
 <body><main>
-<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div><div id="status" class="status">Nicht angemeldet</div></header>
+<header class="head"><div><div class="brand">PHASEONE<span style="color:#f4f5f7">[human]</span></div><div class="sub">Persönlicher Agent · Phase 01</div></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><span class="status" id="versionBadge">Version 0.3.0</span><div id="status" class="status">Nicht angemeldet</div></div></header>
 <section id="login">
 <h1>Dein System.<br><span>Dein Gedächtnis.</span></h1>
 <p>Ein privater Arbeitsbereich für Gespräche, Aufgaben, Erinnerungen und persönliche Projekte.</p>
 <div class="panel login-wrap"><h2>Anmelden</h2><div class="small muted">Nur das freigegebene Konto kann auf gespeicherte Daten zugreifen.</div>
-<form id="loginForm" onsubmit="event.preventDefault();if(!window.phaseoneLoginReady)document.getElementById('loginMessage').textContent='Das Anmeldeskript wurde nicht geladen. Bitte Seite neu laden.';"><label for="email">E-Mail-Adresse</label><input id="email" type="email" autocomplete="username" required placeholder="Freigegebene E-Mail"><label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password" required placeholder="Supabase-Auth-Passwort"><button class="full" id="loginButton" type="submit">Sicher anmelden</button></form><div id="loginMessage" class="msg" role="status"></div></div>
+<form id="loginForm" onsubmit="event.preventDefault();"><label for="email">E-Mail-Adresse</label><input id="email" type="email" autocomplete="username" required placeholder="Freigegebene E-Mail"><label for="password">Passwort</label><input id="password" type="password" autocomplete="current-password" required placeholder="Supabase-Auth-Passwort"><button class="full" id="loginButton" type="submit">Sicher anmelden</button></form><div id="loginMessage" class="msg" role="status"></div></div>
 </section>
 <section id="app" class="hidden">
 <div class="welcome"><div><h1 style="font-size:clamp(27px,5vw,40px)">Arbeitsbereich<span>.</span></h1><div id="userLabel" class="muted small"></div></div><button id="logoutButton" class="secondary" type="button">Abmelden</button></div>
@@ -32,11 +32,12 @@
 </div>
 <div class="panel section"><div class="welcome"><div><h2>Aktivität</h2><div class="small muted">Zuletzt gespeicherte Gespräche</div></div><button id="refreshButton" class="secondary" type="button">Aktualisieren</button></div><div id="activity"><div class="empty">Lade Aktivität …</div></div></div>
 </section>
-<div class="footer">PHASEONE[human] · Persönlicher Prototyp · Konto und Daten werden über Supabase Auth und Row Level Security geschützt.</div>
+<div class="footer">PHASEONE[human] · Version 0.3.0 · Persönlicher Prototyp · Konto und Daten werden über Supabase Auth und Row Level Security geschützt.</div>
 </main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.57.0/dist/umd/supabase.js"></script>
 <script>
-if(!window.supabase){document.getElementById("loginMessage").textContent="Die Supabase-Bibliothek konnte nicht geladen werden. Bitte Internetverbindung prüfen.";throw new Error("Supabase CDN failed to load");}
+if(!window.supabase){document.getElementById("loginMessage").textContent="Die Anmelde-Bibliothek konnte nicht geladen werden. Prüfe die Internetverbindung oder öffne die Seite später erneut.";throw new Error("Supabase CDN failed to load");}
 const { createClient } = window.supabase;
 const SUPABASE_URL='https://eopvkwhcgznvubesaszv.supabase.co';
 const SUPABASE_KEY='sb_publishable_d3hVgDqwTuB63BtfumPwoQ_ngy2ig_c';
